@@ -24,6 +24,15 @@ command builds a Docker image for running ml4md virtually.
 docker build -t ml4md --build-arg GIT_PRIVATE_KEY="$(cat ~/.ssh/id_rsa)" .
 ```
 
+## Examples
+
+The following example runs LAMMPS through MPI utilizing 12 cores and 2
+threads.
+
+```sh
+mpirun -np 12 lmp -sf omp -pk omp 2 -in in.script
+```
+
 ## Resources
  - [MLIP2 Tutorial][1]
  - [MLIP2 User Manual][2]
