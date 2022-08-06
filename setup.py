@@ -43,7 +43,7 @@ def run(*commands):
 
 def clean_directory(path):
     if os.path.isdir(path):
-        os.rmdir(path)
+        run(f"rm -rf {path}")
 
 
 def clone_git_repository(url, path, branch=None):
@@ -78,9 +78,20 @@ def install_lammps():
 
     current_directory_path = os.getcwd()
     src_directory_path = os.path.join(LAMMPS_DIRECTORY_PATH, "src")
+    makefile_path = os.path.join(
+        LAMMPS_DIRECTORY_PATH,
+        "src",
+        "MAKE",
+        "OPTIONS",
+        f"Makefile.{LAMMPS_BUILD_TARGET}"
+    )
 
     os.chdir(src_directory_path)
-    run("make yes-openmp")
+    run(
+        "make yes-openmp",
+        r"sed -i -E 's/(CCFLAGS|LINKFLAGS) =(.+?)$/\1 =\2 -fopenmp/' "
+        f"{makefile_path}"
+    )
 
     os.chdir(current_directory_path)
 
