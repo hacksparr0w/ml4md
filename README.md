@@ -21,5 +21,12 @@ You can also use Docker for containing the whole environment. The following
 command builds a Docker image for running ml4md virtually.
 
 ```sh
-docker build -t ml4md --build-arg GIT_PRIVATE_KEY="$(cat ~/.ssh/gitlab_key)" .
+docker build -t ml4md --build-arg GIT_PRIVATE_KEY="$(cat ~/.ssh/id_rsa)" .
 ```
+
+## Resources
+ - [MLIP2 Tutorial][1]
+ - [MLIP2 User Manual][2]
+
+[1]: https://gitlab.com/ashapeev/mlip-2-tutorials
+[2]: https://gitlab.com/ashapeev/mlip-2-paper-supp-info/-/blob/master/manual.pdf
