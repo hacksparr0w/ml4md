@@ -76,6 +76,14 @@ def install_lammps():
         branch="stable"
     )
 
+    current_directory_path = os.getcwd()
+    src_directory_path = os.path.join(LAMMPS_DIRECTORY_PATH, "src")
+
+    os.chdir(src_directory_path)
+    run("make yes-openmp")
+
+    os.chdir(current_directory_path)
+
 
 def install_mpich():
     clean_directory(MPICH_DIRECTORY_PATH)
