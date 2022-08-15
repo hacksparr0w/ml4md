@@ -10,11 +10,15 @@ RUN apt install -y \
   git \
   python3 \
   python3-pip \
-  rsync
+  rsync \
+  libglib2.0-0 \
+  libgl1-mesa-dev \
+  libxkbcommon-x11-0 \
+  libdbus-1-dev
 
 RUN ln -s /usr/bin/python3 /usr/bin/python
 
-RUN pip install poetry
+RUN pip install poetry numpy
 
 RUN mkdir -p /root/.ssh && \
   chmod 0700 /root/.ssh && \
@@ -25,6 +29,8 @@ RUN mkdir -p /root/.ssh && \
 RUN mkdir /app
 WORKDIR /app
 COPY pyproject.toml .
+COPY ml4md ml4md
+COPY ml4md_lammps_scripts ml4md_lammps_scripts
 
 RUN poetry config virtualenvs.create false
 RUN poetry install
