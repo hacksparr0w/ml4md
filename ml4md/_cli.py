@@ -8,6 +8,30 @@ import psutil
 from anvil import Paths, run
 
 
+ANVIL_PATHS = Paths(Path.cwd() / "packages", None)
+
+
+@click.command("convert")
+@click.argument(
+    "input_file",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    required=True
+)
+@click.argument(
+    "output_file",
+    type=click.Path(path_type=Path),
+    required=True
+)
+def convert_command(input_file: Path, output_file: Path):
+    atomsk_executable = (
+        ANVIL_PATHS.of("atomsk").current_package_build_directory
+        / "bin"
+        / "atomsk"
+    )
+
+    run([str(atomsk_executable), str(input_file), str(output_file), "lammps"])
+
+
 @click.command("render")
 @click.argument(
     "dump_file",
@@ -44,17 +68,18 @@ def render_command(dump_file: Path, output_file: Path) -> None:
     required=True
 )
 def run_command(script_file: Path) -> None:
-    paths = Paths(Path.cwd() / "packages", None)
     cpu_count = psutil.cpu_count(logical=False)
     thread_count = psutil.cpu_count() // cpu_count
     mpich_executable = (
-        paths.of("mpich").current_package_build_directory
+        ANVIL_PATHS.of("mpich").current_package_build_directory
         / "bin"
         / "mpirun"
     )
 
     lammps_executable = (
-        paths.of("lammps-mlip-interface").current_package_build_directory
+        ANVIL_PATHS.of(
+            "lammps-mlip-interface"
+        ).current_package_build_directory
         / "bin"
         / "lmp"
     )
@@ -79,5 +104,6 @@ def cli():
     pass
 
 
+cli.add_command(convert_command)
 cli.add_command(render_command)
 cli.add_command(run_command)

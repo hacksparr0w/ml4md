@@ -14,7 +14,8 @@ RUN apt install -y \
   libglib2.0-0 \
   libgl1-mesa-dev \
   libxkbcommon-x11-0 \
-  libdbus-1-dev
+  libdbus-1-dev \
+  liblapack-dev
 
 RUN ln -s /usr/bin/python3 /usr/bin/python
 
@@ -42,5 +43,6 @@ RUN anvil install bazelisk
 RUN anvil install tensorflow
 RUN anvil install deepmd-kit
 RUN anvil install lammps-mlip-interface
+RUN anvil install atomsk
 
 RUN rm /root/.ssh/id_rsa
