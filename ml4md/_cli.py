@@ -8,7 +8,7 @@ import psutil
 from anvil import Paths, run
 
 
-ANVIL_PATHS = Paths(Path.cwd() / "packages", None)
+_ANVIL_PATHS = Paths(Path.cwd() / "packages", None)
 
 
 @click.command("convert")
@@ -22,9 +22,9 @@ ANVIL_PATHS = Paths(Path.cwd() / "packages", None)
     type=click.Path(path_type=Path),
     required=True
 )
-def convert_command(input_file: Path, output_file: Path):
+def _convert_command(input_file: Path, output_file: Path) -> None:
     atomsk_executable = (
-        ANVIL_PATHS.of("atomsk").current_package_build_directory
+        _ANVIL_PATHS.of("atomsk").current_package_build_directory
         / "bin"
         / "atomsk"
     )
@@ -43,7 +43,7 @@ def convert_command(input_file: Path, output_file: Path):
     type=click.Path(path_type=Path),
     required=True
 )
-def render_command(dump_file: Path, output_file: Path) -> None:
+def _render_command(dump_file: Path, output_file: Path) -> None:
     pipeline = ovito.io.import_file(str(dump_file))
     pipeline.add_to_scene()
 
@@ -67,17 +67,17 @@ def render_command(dump_file: Path, output_file: Path) -> None:
     type=click.Path(exists=True, dir_okay=False, path_type=Path),
     required=True
 )
-def run_command(script_file: Path) -> None:
+def _run_command(script_file: Path) -> None:
     cpu_count = psutil.cpu_count(logical=False)
     thread_count = psutil.cpu_count() // cpu_count
     mpich_executable = (
-        ANVIL_PATHS.of("mpich").current_package_build_directory
+        _ANVIL_PATHS.of("mpich").current_package_build_directory
         / "bin"
         / "mpirun"
     )
 
     lammps_executable = (
-        ANVIL_PATHS.of(
+        _ANVIL_PATHS.of(
             "lammps-mlip-interface"
         ).current_package_build_directory
         / "bin"
@@ -100,10 +100,10 @@ def run_command(script_file: Path) -> None:
 
 
 @click.group()
-def cli():
+def cli() -> None:
     pass
 
 
-cli.add_command(convert_command)
-cli.add_command(render_command)
-cli.add_command(run_command)
+cli.add_command(_convert_command)
+cli.add_command(_render_command)
+cli.add_command(_run_command)
