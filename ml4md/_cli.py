@@ -8,7 +8,7 @@ import psutil
 from anvil import Paths, run
 
 
-_ANVIL_PATHS = Paths(Path.cwd() / "packages", None)
+_ANVIL_PATHS = Paths(Path(__file__).parent.parent / "packages", None)
 
 
 @click.command("convert")
