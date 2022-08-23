@@ -11,26 +11,33 @@ lattice diamond 3.567
 create_atoms 1 box
 mass 1 12
 
-pair_style lj/cut 1.54
-pair_coeff 1 1 1.0 1.0 1.54
+#
+# X.W. Zhou, D.K. Ward, and M.E. Foster (2015), "An analytical bond-order potential for carbon", Journal of Computational Chemistry
+# Link: https://www.ctcms.nist.gov/potentials/entry/2015--Zhou-X-W-Ward-D-K-Foster-M-E--C/2015--Zhou-X-W--C--LAMMPS--ipr1.html
+#
+
+pair_style bop
+pair_coeff * * CCu.bop C
+comm_modify cutoff 11.21
 
 neighbor 0.1 bin
 neigh_modify every 1 delay 0 check no
 
-dump 1 all atom 100 diamond.dump
+dump 1 all atom 10 diamond.dump
+thermo 100
 
 fix 1 all nvt temp 3600 3600 10
-run 100000
+run 1000
 unfix 1
 
 fix 1 all npt temp 3600 3600 10 iso 0 0 10
-run 100000
+run 1000
 unfix 1
 
 fix 1 all npt temp 3600 300 10 iso 0 0 10
-run 100000
+run 1000
 unfix 1
 
 fix 1 all npt temp 300 300 10 iso 0 0 10
-run 100000
+run 1000
 unfix 1
