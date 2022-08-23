@@ -7,7 +7,7 @@ license = "MIT"
 
 [tool.poetry.dependencies]
 python = ">=3.8,<3.11"
-anvil = {git = "https://github.com/hacksparr0w/anvil.git", rev = "e6a92e0"}
+anvil = {git = "https://github.com/hacksparr0w/anvil.git", rev = "e9c7361"}
 click = "^8.1.3"
 psutil = "^5.9.1"
 ovito = "^3.7.8"
