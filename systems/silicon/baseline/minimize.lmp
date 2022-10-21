@@ -1,0 +1,63 @@
+variable initial_volume_scale getenv "MD_INITIAL_VOLUME_SCALE"
+variable final_volume_scale getenv "MD_FINAL_VOLUME_SCALE"
+
+variable initial_box_side_scale equal "v_initial_volume_scale ^ (1 / 3)"
+variable final_box_side_scale equal "v_final_volume_scale ^ (1 / 3)"
+
+units metal
+dimension 3
+processors * * *
+boundary p p p
+
+kim init &
+  Sim_LAMMPS_ModifiedTersoff_PurjaPunMishin_2017_Si__SM_184524061456_000 &
+  metal
+
+kim query a_0 get_lattice_constant_cubic &
+  crystal=[diamond] &
+  species=[Si] &
+  units=[angstrom]
+
+variable a_i equal "v_a_0 * v_initial_box_side_scale"
+
+region box block 0 ${a_i} 0 ${a_i} 0 ${a_i}
+create_box 1 box
+lattice diamond ${a_0}
+create_atoms 1 box
+
+kim interactions Si
+neigh_modify every 1 check yes
+mass 1 28.08
+
+compute atom_potential_energy all pe/atom
+compute total_potential_energy all reduce sum c_atom_potential_energy
+
+thermo 10
+thermo_style custom step lx ly lz press pxx pyy pzz c_total_potential_energy
+
+fix 1 all nve
+fix 2 all deform 10 x scale ${final_box_side_scale} &
+  y scale ${final_box_side_scale} &
+  z scale ${final_box_side_scale} &
+  remap x &
+  remap v
+
+dump 1 all atom 2 minimize-${initial_volume_scale}-${final_volume_scale}.dump
+
+run 500
+
+unfix 1
+unfix 2
+velocity all set 0 0 0
+
+min_style cg
+minimize 1e-25 1e-25 1000 1000
+
+variable total_potential_energy equal "c_total_potential_energy"
+variable total_atoms equal "count(all)"
+variable cohesive_energy equal "v_total_potential_energy / v_total_atoms"
+variable final_volume equal "vol / v_total_atoms"
+
+print "Total energy (eV) = ${total_potential_energy}"
+print "Cohesive energy (eV) = ${cohesive_energy}"
+print "Final volume (angstrom^3) = ${final_volume}"
