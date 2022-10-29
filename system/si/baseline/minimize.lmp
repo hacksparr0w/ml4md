@@ -1,0 +1,55 @@
+variable a_initial getenv "MD_A_INITIAL"
+variable a_final getenv "MD_A_FINAL"
+
+units metal
+dimension 3
+processors * * *
+boundary p p p
+
+kim init &
+  Sim_LAMMPS_ModifiedTersoff_PurjaPunMishin_2017_Si__SM_184524061456_000 &
+  metal
+
+region box block 0 ${a_initial} 0 ${a_initial} 0 ${a_initial}
+create_box 1 box
+lattice diamond 5.433560132980346
+create_atoms 1 box
+
+kim interactions Si
+neigh_modify every 1 check yes
+mass 1 28.08
+
+compute atom_potential_energy all pe/atom
+compute total_potential_energy all reduce sum c_atom_potential_energy
+
+thermo 10
+thermo_style custom step lx ly lz press pxx pyy pzz c_total_potential_energy
+
+fix 1 all nve
+fix 2 all deform 10 &
+  x final 0.0 ${a_final} &
+  y final 0.0 ${a_final} &
+  z final 0.0 ${a_final} &
+  remap x &
+  remap v &
+  units box
+
+dump 1 all atom 2 minimize-${a_initial}-${a_final}.dump
+
+run 500
+
+unfix 1
+unfix 2
+velocity all set 0 0 0
+
+min_style cg
+minimize 1e-25 1e-25 1000 1000
+
+variable total_potential_energy equal "c_total_potential_energy"
+variable total_atoms equal "count(all)"
+variable cohesive_energy equal "v_total_potential_energy / v_total_atoms"
+variable final_volume equal "vol / v_total_atoms"
+
+print "Total energy (eV) = ${total_potential_energy}"
+print "Cohesive energy (eV) = ${cohesive_energy}"
+print "Final volume (angstrom^3) = ${final_volume}"

@@ -1,0 +1,61 @@
+{
+  "model": {
+    "type_map": ["Si"],
+    "descriptor": {
+      "type": "se_e2_a",
+      "sel": [70],
+      "rcut_smth": 1.8,
+      "rcut": 6.0,
+      "neuron": [25, 50, 100],
+      "resnet_dt": false,
+      "axis_neuron": 16,
+      "seed": 1
+    },
+    "fitting_net": {
+      "neuron": [40, 40, 40],
+      "resnet_dt": true,
+      "seed": 1
+    }
+  },
+  "learning_rate": {
+    "type": "exp",
+    "decay_steps": 100000,
+    "start_lr": 0.001,
+    "stop_lr": 3.51e-8
+  },
+  "loss": {
+    "type": "ener",
+    "start_pref_e": 0.02,
+    "limit_pref_e": 1,
+    "start_pref_f": 1000,
+    "limit_pref_f": 1,
+    "start_pref_v": 0,
+    "limit_pref_v": 0
+  },
+  "training": {
+    "training_data": {
+      "systems": [
+        "../../system/si/deepmd/data/training/000",
+        "../../system/si/deepmd/data/training/001",
+        "../../system/si/deepmd/data/training/002",
+        "../../system/si/deepmd/data/training/003"
+      ],
+      "batch_size": "auto:32"
+    },
+    "validation_data": {
+      "systems": [
+        "../../system/si/deepmd/data/validation/000",
+        "../../system/si/deepmd/data/validation/001",
+        "../../system/si/deepmd/data/validation/002",
+        "../../system/si/deepmd/data/validation/003"
+      ],
+      "batch_size": "auto",
+      "numb_btch": 1
+    },
+    "numb_steps": 1000000,
+    "seed": 10,
+    "disp_file": "l_curve.csv",
+    "disp_freq": 1000,
+    "save_freq": 1000
+  }
+}
