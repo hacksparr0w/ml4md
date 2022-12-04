@@ -9,16 +9,21 @@ import sys
 from dataclasses import asdict, dataclass
 from numbers import Number
 from pathlib import Path
-from typing import Sequence
+from typing import Iterator, Sequence, TypeVar
 
 from dacite import from_dict
 
+
+T = TypeVar("T")
 
 TRAINING_TIME_PATTERN = re.compile(
     r"training time ([+-]?([0-9]*[.])?[0-9]+) s"
 )
 
 MODEL_DIR = Path(__file__).parent.parent.resolve() / "model"
+CACHE_FILE = (
+    Path(__file__).parent.resolve() / f"{Path(__file__).name}.cache"
+)
 
 
 @dataclass
@@ -34,6 +39,11 @@ class OutputData:
 
 def avg(n: Sequence[Number]) -> float:
     return sum(n) / len(n)
+
+
+def skip(iterator: Iterator[T], n: int) -> None:
+    for _ in range(n):
+        next(iterator)
 
 
 def measure_training_time(
@@ -86,14 +96,22 @@ def main() -> None:
         repeat=3
     )
 
+    CACHE_FILE.touch(exist_ok=True)
+    cache_stream = CACHE_FILE.open("r+", encoding="utf-8")
+    skip_index_line = cache_stream.readline()
+    skip_index = 0 if skip_index_line == "" else int(skip_index_line)
+
+    skip(params, skip_index)
+
     last_params = None
     last_training_time = None
 
-    for item in params:
+    for index, item in enumerate(params):
+        index += skip_index
         training_time = measure_training_time(data.model, *item)
 
         print(
-            f"Measured {training_time}s for training with {item} params.",
+            f"{training_time}s for training with params #{index}: {item}.",
             file=sys.stderr,
             flush=True
         )
@@ -101,6 +119,11 @@ def main() -> None:
         if last_training_time is None or last_training_time > training_time:
             last_training_time = training_time
             last_params = item
+
+        cache_stream.truncate(0)
+        cache_stream.seek(0)
+        cache_stream.write(f"{index + 1}\n")
+        cache_stream.flush()
 
     output = OutputData(last_params, last_training_time)
     json.dump(asdict(output), sys.stdout, indent=2)
